@@ -1,10 +1,17 @@
 #!/usr/bin/env python
 
+import os
 import html
 from github import Github
 from taskw import TaskWarrior
+import sys
 
-g = Github('a6d379ba2ce36099d44db44cda75b0d071720281', per_page=100)
+token = os.environ.get('GITHUB_TOKEN')
+if not token:
+    print("GITHUB_TOKEN environment variable must be set.")
+    sys.exit(1)
+
+g = Github(, per_page=100)
 tw = TaskWarrior()
 
 user = g.get_user()
