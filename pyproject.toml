@@ -1,0 +1,39 @@
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "taskhub"
+version = "0.1.0"
+description = "Task management tool, supporting import/export from/to different services, with multiple interfaces."
+license = "ISC"
+authors = ["Timothée Mazzucotelli <pawamoy@pm.me>"]
+readme = 'README.md'
+repository = "https://github.com/pawamoy/taskhub"
+homepage = "https://github.com/pawamoy/taskhub"
+keywords = ['tasks', 'tasks-management', 'bugs']
+packages = [ { include = "taskhub", from = "src" } ]
+include = [
+    "README.md",
+    "pyproject.toml"
+]
+
+[tool.poetry.dependencies]
+python = "~3.6"
+django = "^2.1"
+pygithub = { version = "*", optional = true }
+
+[tool.poetry.extras]
+github = ["pygithub"]
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-cov = "*"
+pytest-sugar = "*"
+ipython = "^7.2"
+
+[tool.poetry.scripts]
+taskhub = 'taskhub.cli:main'
+
+[tool.black]
+line-length = 120

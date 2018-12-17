@@ -1,17 +1,20 @@
-#!/usr/bin/env python
-
 import os
 import html
 from github import Github
 from taskw import TaskWarrior
 import sys
 
-token = os.environ.get('GITHUB_TOKEN')
-if not token:
-    print("GITHUB_TOKEN environment variable must be set.")
-    sys.exit(1)
 
-g = Github(, per_page=100)
+class GitHubService:
+    def __init__(self):
+        token = os.environ.get('GITHUB_TOKEN')
+        if not token:
+            print("GITHUB_TOKEN environment variable must be set.")
+            sys.exit(1)
+
+        self.client = Github(token, per_page=100)
+
+
 tw = TaskWarrior()
 
 user = g.get_user()
@@ -48,7 +51,7 @@ del assigned_issues
 
 
 def github_to_taskwarrior(issue):
-    project='git.' + issue._rawData['repository_full_name'].lower().replace('.', '-').replace('/', '.')
+    project = 'git.' + issue._rawData['repository_full_name'].lower().replace('.', '-').replace('/', '.')
     # labels=[l['name'] for l in issue._rawData['labels']]
     # tags=''
     # if labels:
