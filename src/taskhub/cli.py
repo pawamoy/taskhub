@@ -17,9 +17,16 @@ Why does this file exist, and why not put this in __main__?
 
 import argparse
 
+from .core import services
+
 
 def get_parser():
     parser = argparse.ArgumentParser()
+
+    parser.add_argument("-i", "--input-service", dest="input_service", default="stdin")
+    parser.add_argument("-o", "--output-service", dest="output_service", default="stdout")
+
+    parser.add_argument("-s", "--srv-opt", "--service-option", dest="services_options", nargs=1)
 
     return parser
 
@@ -27,5 +34,11 @@ def get_parser():
 def main(args=None):
     parser = get_parser()
     args = parser.parse_args(args=args)
+
+    input_service = services.SERVICES[args.input_service]
+    output_service = services.SERVICES[args.output_service]
+
+    data = input_service.read_tasks()
+    output_service.write_tasks(data)
 
     return 0

@@ -21,16 +21,24 @@ include = [
 [tool.poetry.dependencies]
 python = "~3.6"
 django = "^2.1"
-pygithub = { version = "*", optional = true }
+toml = {version = "^0.10.0",optional = true}
+pygithub = {version = "^1.43",optional = true}
+pyyaml = {version = "^3.13",optional = true}
+xmltodict = {version = "^0.11.0",optional = true}
+taskw = {version = "^1.2.0",optional = true}
 
 [tool.poetry.extras]
 github = ["pygithub"]
+yaml = ["pyyaml"]
+toml = ["toml"]
+taskwarrior = ["taskw"]
+all = ["pygithub", "pyyaml", "toml", "taskw"]
 
 [tool.poetry.dev-dependencies]
-pytest = "*"
-pytest-cov = "*"
-pytest-sugar = "*"
 ipython = "^7.2"
+pytest = "^4.0"
+pytest-cov = "^2.6"
+pytest-sugar = "^0.9.2"
 
 [tool.poetry.scripts]
 taskhub = 'taskhub.cli:main'
