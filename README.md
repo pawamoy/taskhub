@@ -1,5 +1,5 @@
 # [ALPHA] TaskHub
-Command-line tool and Python library to interact with an `aria2c` daemon process through JSON-RPC.
+Task management tool, supporting import/export from/to different services, with multiple interfaces.
 
 ## Requirements
 `taskhub` requires Python 3.6. To install Python 3.6, I recommend [`pyenv`](https://github.com/pyenv/pyenv):
