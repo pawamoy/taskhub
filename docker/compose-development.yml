@@ -1,0 +1,74 @@
+version: '3'
+
+
+networks:
+  web_network: {}
+  cache_network: {}
+  taskhub_db_network: {}
+
+
+volumes:
+  media: {}
+  static: {}
+  taskhub_data: {}
+
+
+services:
+
+  # reverse proxy container (nginx)
+  nginx:
+    image: nginx:1.13
+    ports:
+      - 8000:80
+    volumes:
+      - ./docker/services/nginx/development/conf.d:/etc/nginx/conf.d
+      - media:/opt/srv/taskhub/media
+      - static:/opt/srv/taskhub/static
+    networks:
+      - web_network
+    depends_on:
+      - taskhub
+
+  # web container, with django + gunicorn
+  taskhub:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      args:
+        ci: "true"
+    environment:
+      - DJANGO_SETTINGS_MODULE
+      - TASKHUB_DB_NAME=taskhub_db
+      - TASKHUB_DB_USER=taskhub_db_role
+      - TASKHUB_DB_PASSWORD=taskhub_db_password
+      - TASKHUB_DB_HOST=taskhub_db
+    volumes:
+      - .:/opt/srv/taskhub
+      - media:/opt/srv/taskhub/media
+      - static:/opt/srv/taskhub/static
+    networks:
+      - taskhub_db_network
+      - web_network
+      - cache_network
+    depends_on:
+      - taskhub_db
+      - memcached
+
+  # cache server (memcached)
+  memcached:
+    image: memcached:1.5
+    networks:
+      - cache_network
+
+  # database containers, one for each db
+  taskhub_db:
+    image: postgres:10
+    volumes:
+      - taskhub_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=taskhub_db
+      - POSTGRES_USER=taskhub_db_role
+      - POSTGRES_PASSWORD=taskhub_db_password
+    networks:
+      - taskhub_db_network
+

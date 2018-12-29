@@ -49,7 +49,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "taskhub.urls"
+ROOT_URLCONF = "core.urls"
 
 TEMPLATES = [
     {
@@ -67,13 +67,22 @@ TEMPLATES = [
     }
 ]
 
-WSGI_APPLICATION = "taskhub.wsgi.application"
+WSGI_APPLICATION = "core.wsgi.application"
 
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": os.path.join(BASE_DIR, "db.sqlite3")}}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.getenv("TASKHUB_DB_NAME", "taskhub_db"),
+        'USER': os.getenv("TASKHUB_DB_USER", "taskhub_db_role"),
+        'PASSWORD': os.getenv("TASKHUB_DB_PASSWORD"),
+        'HOST': os.getenv("TASKHUB_DB_HOST", "taskhub_db"),
+        'PORT': os.getenv("TASKHUB_DB_PORT", "5432"),
+    },
+}
 
 
 # Password validation
@@ -105,3 +114,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = "/static/"
+
+STATIC_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'static')
+MEDIA_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'media')
