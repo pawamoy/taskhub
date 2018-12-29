@@ -3,29 +3,33 @@
 
 # Building rules ----------------------------------------------------------------------------------
 build-database: ## Migrate the application database (create or alter tables).
-	poetry run src/taskhub/manage.py migrate
+	src/taskhub/manage.py migrate
+
+build-initial-migrations: ## Create the initial database migrations.
+	src/taskhub/manage.py makemigrations core
 
 build-superuser: ## Create a super user in the application database.
-	poetry run src/taskhub/manage.py createsuperuser
+	src/taskhub/manage.py createsuperuser
 
 build-docs: ## Build the documentation.
 	sphinx-build -E -b html docs build/docs
 
 # Running rules -----------------------------------------------------------------------------------
 python: ## Launch a Python shell in the djangoapp container.
-	poetry run src/taskhub/manage.py shell_plus
+	src/taskhub/manage.py shell_plus
 
 # Updating rules ----------------------------------------------------------------------------------
-delete-content-types:
-	./scripts/delete_content_types
+update-migrations: ## Update the database migrations.
+	src/taskhub/manage.py makemigrations
 
-load-fixtures: ## Install the fixtures in the database.
-	./scripts/load_fixtures
-	poetry run src/taskhub/manage.py remove_stale_contenttypes --no-input
+create-data-migration: ## Create a new, empty data migration.
+	src/taskhub/manage.py makemigrations --empty $(APP)
+
+reset-migrations: delete-migrations build-initial-migrations ## Delete all migrations and re-create the initial migrations.
 
 # Backup rules ------------------------------------------------------------------------------------
 backup-databases: ## Backup the databases.
-	poetry run src/taskhub/manage.py backup_databases
+	src/taskhub/manage.py backup_databases
 
 # Testing / Linting rules -------------------------------------------------------------------------
 check: check-safety check-bandit check-pylint check-isort check-docs-links check-docs-spelling ## Run the check jobs (safety, style, docs).
@@ -58,6 +62,10 @@ check-docs-links: build-docs ## Check the documentation (spelling, URLs).
 
 check-docs-spelling: build-docs ## Check the documentation (spelling, URLs).
 	SPELLCHECK=1 sphinx-build -b spelling -w /dev/null docs dist/docs
+
+# CLean rules -------------------------------------------------------------------------------------
+delete-migrations: ## Delete the migrations.
+	@rm -rf src/taskhub/core/migrations
 
 # Usage rules -------------------------------------------------------------------------------------
 help: ## Print this help.

@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "core",
+    "django_extensions",
 ]
 
 MIDDLEWARE = [
@@ -74,14 +76,14 @@ WSGI_APPLICATION = "core.wsgi.application"
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.getenv("TASKHUB_DB_NAME", "taskhub_db"),
-        'USER': os.getenv("TASKHUB_DB_USER", "taskhub_db_role"),
-        'PASSWORD': os.getenv("TASKHUB_DB_PASSWORD"),
-        'HOST': os.getenv("TASKHUB_DB_HOST", "taskhub_db"),
-        'PORT': os.getenv("TASKHUB_DB_PORT", "5432"),
-    },
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": os.getenv("TASKHUB_DB_NAME", "taskhub_db"),
+        "USER": os.getenv("TASKHUB_DB_USER", "taskhub_db_role"),
+        "PASSWORD": os.getenv("TASKHUB_DB_PASSWORD"),
+        "HOST": os.getenv("TASKHUB_DB_HOST", "taskhub_db"),
+        "PORT": os.getenv("TASKHUB_DB_PORT", "5432"),
+    }
 }
 
 
@@ -115,5 +117,5 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-STATIC_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'static')
-MEDIA_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'media')
+STATIC_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), "static")
+MEDIA_ROOT = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), "media")

@@ -10,7 +10,7 @@ networks:
 volumes:
   media: {}
   static: {}
-  taskhub_data: {}
+  data: {}
 
 
 services:
@@ -64,7 +64,7 @@ services:
   taskhub_db:
     image: postgres:10
     volumes:
-      - taskhub_data:/var/lib/postgresql/data
+      - data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=taskhub_db
       - POSTGRES_USER=taskhub_db_role

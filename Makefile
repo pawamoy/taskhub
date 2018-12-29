@@ -13,7 +13,7 @@ DOCKER_COMPOSE := docker-compose
 ifndef HOSTNAME
 HOSTNAME := $(shell hostname)
 endif
-DJANGO_SETTINGS_MODULE := taskhub.core.settings
+DJANGO_SETTINGS_MODULE := core.settings
 COMPOSE_FILE := compose-development.yml
 
 DOCKER_COMPOSE += -f docker/$(COMPOSE_FILE) --project-directory .
@@ -28,13 +28,13 @@ export DJANGO_SETTINGS_MODULE
 export DOCKER0_ADDRESS
 
 # Information -------------------------------------------------------------------------------------
-$(info ----------------------------------------------------)
-$(info HOSTNAME                = ${HOSTNAME})
-$(info COMPOSE_FILE            = ${COMPOSE_FILE})
-$(info DOCKER0_ADDRESS         = ${DOCKER0_ADDRESS})
-$(info DJANGO_SETTINGS_MODULE  = ${DJANGO_SETTINGS_MODULE})
-$(info ----------------------------------------------------)
-$(info )
+#$(info ----------------------------------------------------)
+#$(info HOSTNAME                = ${HOSTNAME})
+#$(info COMPOSE_FILE            = ${COMPOSE_FILE})
+#$(info DOCKER0_ADDRESS         = ${DOCKER0_ADDRESS})
+#$(info DJANGO_SETTINGS_MODULE  = ${DJANGO_SETTINGS_MODULE})
+#$(info ----------------------------------------------------)
+#$(info )
 
 # Context rules -----------------------------------------------------------------------------------
 no-deps:
@@ -44,19 +44,22 @@ in-db-container:
 	$(eval CONTAINER = taskhub_db)
 
 in-djangoapp-container:
-	$(eval CONTAINER = djangoapp)
+	$(eval CONTAINER = taskhub)
 
 # Building rules ----------------------------------------------------------------------------------
-all: build up-no-start build-database load-fixtures build-superuser up ## Build images, create tables, insert fixtures, create super user and start application.
+all: build up-no-start build-database build-superuser up ## Build images, create tables, insert fixtures, create super user and start application.
 
 build: ## Build the Docker images.
 	$(DOCKER_COMPOSE) build
 
 build-django: ## Build the image for Django.
-	$(DOCKER_COMPOSE) build djangoapp
+	$(DOCKER_COMPOSE) build taskhub
 
 build-database: ## Migrate the application database (create or alter tables).
 	@$(MAKE_IN) build-database
+
+build-initial-migrations: ## Create the initial database migrations.
+	@$(MAKE_IN) build-initial-migrations
 
 build-superuser: ## Create a super user in the application database.
 	@$(MAKE_IN) build-superuser
@@ -86,23 +89,13 @@ python: ## Launch a Python shell in the djangoapp container.
 # Updating rules ----------------------------------------------------------------------------------
 load-static-files: delete-django-image delete-static-volume build-django ## Collect static files.
 
-delete-content-types:
-	@$(MAKE_IN) delete-content-types
+update-migrations: ## Update the database migrations.
+	@$(MAKE_IN) update-migrations
 
-reset-content-types: in-db-container
-	$(eval RUN_OPTS = -v $(PWD)/scripts:/scripts -d)
-	$(DOCKER) exec $$($(RUN); sleep 3) bash /scripts/reset_content_types
+create-data-migration: ## Create a new, empty data migration for app APP.
+	@$(MAKE_IN) create-data-migration APP=$(APP)
 
-load-fixtures: delete-content-types reset-content-types in-djangoapp-container ## Install the fixtures in the databases.
-	$(eval RUN_OPTS = )
-	@$(MAKE_IN) load-fixtures
-
-load-warehouse: ## Reload the questionnaires answers into the analysis tables.
-	@$(MAKE_IN) load-warehouse
-
-# Backup rules ------------------------------------------------------------------------------------
-backup-databases: ## Backup the databases.
-	@$(MAKE_IN) backup-databases
+reset-migrations: delete-migrations build-initial-migrations ## Delete all migrations and re-create the initial migrations.
 
 # Testing / Linting rules -------------------------------------------------------------------------
 check: check-safety check-bandit check-pylint check-isort check-docs-links check-docs-spelling ## Run all the check jobs.
@@ -134,7 +127,7 @@ check-docs-spelling: no-deps ## Check the documentation (spelling, URLs).
 	@$(MAKE_IN) check-docs-spelling
 
 # Cleaning rules ----------------------------------------------------------------------------------
-delete-database-volumes: down ## Delete the database volumes. Don't do this in production!!
+delete-database-volume: down ## Delete the database volume. Don't do this in production!!
 	$(DOCKER) volume rm -f taskhub_data
 
 delete-django-image: down ## Delete the Docker image for the djangoapp service.
@@ -142,6 +135,9 @@ delete-django-image: down ## Delete the Docker image for the djangoapp service.
 
 delete-static-volume: down ## Delete the Docker volume storing static assets.
 	$(DOCKER) volume rm taskhub_static || true
+
+delete-migrations: ## Delete the migrations.
+	@$(MAKE_IN) delete-migrations
 
 clean: ## Remove artifacts (build/docs dirs, coverage files, etc.)
 	rm -rf build/* 2>/dev/null

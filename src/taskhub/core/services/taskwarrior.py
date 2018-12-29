@@ -1,13 +1,70 @@
 import html
+from datetime import datetime
+
 from taskw import TaskWarrior
 
 from . import Service
+from ..models import Group, GroupGrouping, Task, TaskGrouping
 
 
 class TaskWarriorService(Service):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.client = TaskWarrior()
+
+    def to_generic_task(self, service_task):
+        def str_to_date(d):
+            return datetime(
+                year=int(d[:4]),
+                month=int(d[4:6]),
+                day=int(d[6:8]),
+                hour=int(d[9:11]),
+                minute=int(d[11:13]),
+                second=int(d[13:15]),
+            )
+
+        creation_date = str_to_date(service_task["entry"])
+
+        last_updated = None
+        if "modified" in service_task:
+            last_updated = str_to_date(service_task["modified"])
+
+        completion_date = None
+        if "end" in service_task:
+            completion_date = str_to_date(service_task["end"])
+
+        title_description = service_task["description"].split("\n", 1)
+        if len(title_description) > 1:
+            title, description = title_description
+        else:
+            title = title_description[0]
+            description = ""
+
+        status = service_task["status"]
+        uuid = service_task["uuid"]
+
+        groups = {}
+        group = None
+        if "project" in service_task:
+            previous_group = None
+            for group in service_task["project"].split("."):
+                if group not in groups:
+                    groups[group] = Group(title="Project " + group)
+                if previous_group:
+                    GroupGrouping(group=groups[group], in_group=previous_group, order=1)
+                previous_group = groups[group]
+
+        task = Task(
+            id=uuid,
+            status=status,
+            title=title,
+            description=description,
+            completion_date=completion_date,
+            creation_date=creation_date,
+            last_update=last_updated,
+        )
+        if group:
+            TaskGrouping(task=task, group=groups[group], order=1)
 
     def to_service_task(self, generic_task):
         project = "git." + generic_task._rawData["repository_full_name"].lower().replace(".", "-").replace("/", ".")
