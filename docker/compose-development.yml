@@ -19,7 +19,7 @@ services:
   nginx:
     image: nginx:1.13
     ports:
-      - 8000:80
+      - "80:80"
     volumes:
       - ./docker/services/nginx/development/conf.d:/etc/nginx/conf.d
       - media:/opt/srv/taskhub/media
@@ -53,6 +53,11 @@ services:
     depends_on:
       - taskhub_db
       - memcached
+
+  frontend:
+    build: frontend
+    ports:
+      - "8080:80"
 
   # cache server (memcached)
   memcached:

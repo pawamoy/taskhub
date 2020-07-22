@@ -1,0 +1,39 @@
+<h2>My Tasks</h2>
+
+<ul>
+  <li *ngFor="let task of tasks$ | async">
+    <form #f="ngForm" (ngSubmit)="updateTask(task)">
+
+      Title: <input #title="ngModel" type="text" name="title" [(ngModel)]="task.title" [disabled]="!task.isEditable" required/>
+      <div *ngIf="title.invalid && title.errors.required">Title is required</div>
+      <br>
+
+      Description: <input #description="ngModel" type="text" name="description" [(ngModel)]="task.description" [disabled]="!task.isEditable" />
+      <div *ngIf="description.invalid">Description must be a string</div>
+      <br>
+
+      Priority: <input #priority="ngModel" type="number" name="priority" [(ngModel)]="task.priority" [disabled]="!task.isEditable" />
+      <div *ngIf="priority.invalid">Priority must be comprised between 0 and 99</div>
+      <br>
+
+      Confidential: <input #confidential="ngModel" type="checkbox" name="confidential" [(ngModel)]="task.confidential" [disabled]="!task.isEditable" />
+      <div *ngIf="confidential.invalid">???</div>
+      <br>
+
+      <button *ngIf="!task.isEditable" (click)="task.isEditable=!task.isEditable">Edit</button>
+      <button type="submit" *ngIf="task.isEditable" [disabled]="f.form.invalid">Save</button>
+      <button type="button" (click)=deleteTask(task.id)>Delete</button>
+</form>
+  </li>
+</ul>
+
+<h2>Create a Task</h2>
+<form [formGroup]="task_form" (ngSubmit)="onSubmit()">
+  <label for="title">Title</label>
+  <input type="text" formControlName="title" required>
+  <br>
+  <label for="description">Description</label>
+  <input type="text" formControlName="description" required>
+  <br>
+  <button type="submit" [disabled]="task_form.invalid">Add Task</button>
+</form>

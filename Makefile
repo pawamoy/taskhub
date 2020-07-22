@@ -67,6 +67,9 @@ build-superuser: ## Create a super user in the application database.
 build-docs: ## Build the documentation.
 	@$(MAKE_IN) build-docs
 
+build-frontend:  ## Build the Angular frontend.
+	$(DOCKER_COMPOSE) build frontend
+
 # Running rules -----------------------------------------------------------------------------------
 up: ## Start the application.
 	$(DOCKER_COMPOSE) up
@@ -125,6 +128,9 @@ check-docs-links: no-deps ## Check the documentation (spelling, URLs).
 
 check-docs-spelling: no-deps ## Check the documentation (spelling, URLs).
 	@$(MAKE_IN) check-docs-spelling
+
+run-black:  ## Run the tool "black" on the code to lint it.
+	poetry run black src
 
 # Cleaning rules ----------------------------------------------------------------------------------
 delete-database-volume: down ## Delete the database volume. Don't do this in production!!

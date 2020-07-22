@@ -43,7 +43,7 @@ class Task(models.Model):
 
     priority = models.PositiveSmallIntegerField(
         verbose_name=_("Priority"),
-        validators=[MaxValueValidator(99, _("Priority cannot be more than 99"))],
+        validators=[MaxValueValidator(99, _("Priority cannot be higher than 99"))],
         default=50,
         blank=True,
     )
@@ -72,7 +72,7 @@ class Task(models.Model):
         blank=True,
     )
 
-    # dates
+    # time management, deadlines, etc.
     start_date = models.DateTimeField(
         verbose_name=_("Start date"), help_text=_("The date at which the task starts."), blank=True, null=True
     )

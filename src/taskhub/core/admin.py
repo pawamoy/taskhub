@@ -64,7 +64,7 @@ class LabelTasksInline(admin.TabularInline):
 
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
-    inlines = (TasksInGroupInline, GroupsContainedByGroupInline, GroupsContainingGroupInline, GroupLabelsInline)
+    inlines = (TasksInGroupInline, GroupsContainedByGroupInline, GroupsContainingGroupInline)
     list_display = ("id", "title", "description")
 
 
